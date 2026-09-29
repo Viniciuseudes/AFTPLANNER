@@ -3,62 +3,85 @@ import { extractTextFromPDF } from './pdfExtractor';
 
 // CATÁLOGO DE COBERTURAS
 const KINDS = [
-  'WV20G', 'WV30G', 'WV10G', 'WH10G', 'WL10G', 'WL20G', 'WL30G', 'DDPSH', 
-  'TP10G', 'TP20G', 'TP30G', 'DT10G', 'DT15G', 'DT20G', 'DT25G', 'DT30G', 
-  'TM05G', 'TM10G', 'TM15G', 'TM20G', 'TM25G', 'TM30G', 'TM65G', 'TM75G', 
-  'TF20G', 'TF10G', 'TF30G', 'DR10G', 'DR20G', 'DR30G', 'AR10G', 'AP75G', 
-  'AP10G', 'PI05G', 'DIMRG', 'DDP5G', 'PA10G', 'PA05G', 'BRB5G', 'CIA5G', 
-  'HC05G', 'CIB5G', 'AFF5G', 'AFC5G', 'AF05G', 'AFP5G', 'WR10g'
+  'WV20G', 'WV30G', 'WV10G', 'WH10G', 'WL10G', 'WL20G', 'WL30G', 'DDPSH',
+  'TP10G', 'TP20G', 'TP30G', 'DT10G', 'DT15G', 'DT20G', 'DT25G', 'DT30G',
+  'TM05G', 'TM10G', 'TM15G', 'TM20G', 'TM25G', 'TM30G', 'TM65G', 'TM75G',
+  'TF20G', 'TF10G', 'TF30G', 'DR10G', 'DR20G', 'DR30G', 'AR10G', 'AP75G',
+  'AP10G', 'PI05G', 'DIMRG', 'DDP5G', 'PA10G', 'PA05G', 'BRB5G', 'CIA5G',
+  'HC05G', 'CIB5G', 'AFF5G', 'AFC5G', 'AF05G', 'AFP5G', 'TR05G', 'TR10G',
+  'TR15G', 'TR20G', 'TR25G', 'TR30G', 'TR65G', 'TR75G', 'WR10G'
 ];
 
 const COV_META = {
+  // MQC / Base
   WV20G:{desc:'Vida e Saúde 20 anos',tag:'V&S 20a',tipo:'básica',kind:'death',group:'vitalicio',min:70000,max:null,limtext:'Mín. R$ 70.000'},
   WV30G:{desc:'Vida e Saúde 30 anos',tag:'V&S 30a',tipo:'básica',kind:'death',group:'vitalicio',min:70000,max:null,limtext:'Mín. R$ 70.000'},
   WV10G:{desc:'Vida e Saúde 10 anos',tag:'V&S 10a',tipo:'básica',kind:'death',group:'vitalicio',min:70000,max:null,limtext:'Mín. R$ 70.000'},
   WH10G:{desc:'Vida e Saúde 360',tag:'V&S 360',tipo:'básica',kind:'death',group:'vitalicio',min:70000,max:null,limtext:'Mín. R$ 70.000'},
-  WL10G:{desc:'Vida Inteira 10 anos',tag:'Vida Inteira',tipo:'básica',kind:'death',group:'vitalicio',min:65000,max:null,limtext:'Mín. R$ 65.000 (c/ valor de resgate)'},
-  WL20G:{desc:'Vida Inteira 20 anos',tag:'Vida Inteira',tipo:'básica',kind:'death',group:'vitalicio',min:65000,max:null,limtext:'Mín. R$ 65.000 (c/ valor de resgate)'},
-  WL30G:{desc:'Vida Inteira 30 anos',tag:'Vida Inteira',tipo:'básica',kind:'death',group:'vitalicio',min:65000,max:null,limtext:'Mín. R$ 65.000 (c/ valor de resgate)'},
-  DDPSH:{desc:'Doenças Graves Plus 5H',subtype:'Plus (Único)',tipo:'básica',kind:'unico',group:'ddp',min:null,max:null,limtext:'Min. R$ 55.000 Max. R$ 2.500.000'},
-  TP10G:{desc:'Temporário Pref. 10 anos (base)',tag:'Pref. 10a (base)',tipo:'básica',kind:'death',group:'temporario',min:1000000,max:null,limtext:'Base: mín. R$ 1.000.000'},
-  TP20G:{desc:'Temporário Pref. 20 anos (base)',tag:'Pref. 20a (base)',tipo:'básica',kind:'death',group:'temporario',min:1000000,max:null,limtext:'Base: mín. R$ 1.000.000'},
-  TP30G:{desc:'Temporário Pref. 30 anos (base)',tag:'Pref. 30a (base)',tipo:'básica',kind:'death',group:'temporario',min:1000000,max:null,limtext:'Base: mín. R$ 1.000.000'},
-  DT10G:{desc:'Temporário Decrescente 10 anos (base)',tag:'Decresc. 10a (base)',tipo:'básica',kind:'death',group:'temporario',min:null,max:null,limtext:'Base - sem mínimo definido'},
-  DT15G:{desc:'Temporário Decrescente 15 anos (base)',tag:'Decresc. 15a (base)',tipo:'básica',kind:'death',group:'temporario',min:null,max:null,limtext:'Base - sem mínimo definido'},
-  DT20G:{desc:'Temporário Decrescente 20 anos (base)',tag:'Decresc. 20a (base)',tipo:'básica',kind:'death',group:'temporario',min:null,max:null,limtext:'Base - sem mínimo definido'},
-  DT25G:{desc:'Temporário Decrescente 25 anos (base)',tag:'Decresc. 25a (base)',tipo:'básica',kind:'death',group:'temporario',min:null,max:null,limtext:'Base - sem mínimo definido'},
-  DT30G:{desc:'Temporário Decrescente 30 anos (base)',tag:'Decresc. 30a (base)',tipo:'básica',kind:'death',group:'temporario',min:null,max:null,limtext:'Base - sem mínimo definido'},
-  TM05G:{desc:'Temporário 05 anos',tag:'Temp. 05a (base)',tipo:'básica',kind:'death',group:'temporario',min:60000,max:null,limtext:'Base: mín. R$ 60.000'},
-  TM10G:{desc:'Temporário 10 anos',tag:'Temp. 10a (base)',tipo:'básica',kind:'death',group:'temporario',min:60000,max:null,limtext:'Base: mín. R$ 60.000'},
-  TM15G:{desc:'Temporário 15 anos',tag:'Temp. 15a (base)',tipo:'básica',kind:'death',group:'temporario',min:60000,max:null,limtext:'Base: mín. R$ 60.000'},
-  TM20G:{desc:'Temporário 20 anos',tag:'Temp. 20a (base)',tipo:'básica',kind:'death',group:'temporario',min:60000,max:null,limtext:'Base: mín. R$ 60.000'},
-  TM25G:{desc:'Temporário 25 anos',tag:'Temp. 25a (base)',tipo:'básica',kind:'death',group:'temporario',min:60000,max:null,limtext:'Base: mín. R$ 60.000'},
-  TM30G:{desc:'Temporário 30 anos',tag:'Temp. 30a (base)',tipo:'básica',kind:'death',group:'temporario',min:60000,max:null,limtext:'Base: mín. R$ 60.000'},
-  TM65G:{desc:'Temporário até 65 anos',tag:'Temp. até 65a (base)',tipo:'básica',kind:'death',group:'temporario',min:60000,max:null,limtext:'Base: mín. R$ 60.000'},
-  TM75G:{desc:'Temporário até 75 anos',tag:'Temp. até 75a (base)',tipo:'básica',kind:'death',group:'temporario',min:60000,max:null,limtext:'Base: mín. R$ 60.000'},
+  WL10G:{desc:'Vida Inteira 10 anos',tag:'Vida Int. 10a',tipo:'básica',kind:'death',group:'vitalicio',min:65000,max:null,limtext:'Mín. R$ 65.000'},
+  WL20G:{desc:'Vida Inteira 20 anos',tag:'Vida Int. 20a',tipo:'básica',kind:'death',group:'vitalicio',min:65000,max:null,limtext:'Mín. R$ 65.000'},
+  WL30G:{desc:'Vida Inteira 30 anos',tag:'Vida Int. 30a',tipo:'básica',kind:'death',group:'vitalicio',min:65000,max:null,limtext:'Mín. R$ 65.000'},
+  WR10G:{desc:'Legado Protegido 10 anos',tag:'Legado Protegido',tipo:'básica',kind:'death',group:'vitalicio',min:400000,max:null,limtext:'Mín. R$ 400.000'},
+  
+  TP10G:{desc:'Temporário Pref. 10 anos (base)',tag:'Pref. 10a',tipo:'básica',kind:'death',group:'temporario',min:1000000,max:null,limtext:'Base: mín. R$ 1.000.000'},
+  TP20G:{desc:'Temporário Pref. 20 anos (base)',tag:'Pref. 20a',tipo:'básica',kind:'death',group:'temporario',min:1000000,max:null,limtext:'Base: mín. R$ 1.000.000'},
+  TP30G:{desc:'Temporário Pref. 30 anos (base)',tag:'Pref. 30a',tipo:'básica',kind:'death',group:'temporario',min:1000000,max:null,limtext:'Base: mín. R$ 1.000.000'},
+  DT10G:{desc:'Temporário Decrescente 10 anos (base)',tag:'Decresc. 10a',tipo:'básica',kind:'death',group:'temporario',min:null,max:null,limtext:'Base - sem mínimo'},
+  DT15G:{desc:'Temporário Decrescente 15 anos (base)',tag:'Decresc. 15a',tipo:'básica',kind:'death',group:'temporario',min:null,max:null,limtext:'Base - sem mínimo'},
+  DT20G:{desc:'Temporário Decrescente 20 anos (base)',tag:'Decresc. 20a',tipo:'básica',kind:'death',group:'temporario',min:null,max:null,limtext:'Base - sem mínimo'},
+  DT25G:{desc:'Temporário Decrescente 25 anos (base)',tag:'Decresc. 25a',tipo:'básica',kind:'death',group:'temporario',min:null,max:null,limtext:'Base - sem mínimo'},
+  DT30G:{desc:'Temporário Decrescente 30 anos (base)',tag:'Decresc. 30a',tipo:'básica',kind:'death',group:'temporario',min:null,max:null,limtext:'Base - sem mínimo'},
+  TM05G:{desc:'Temporário 05 anos',tag:'Temp. 05a',tipo:'básica',kind:'death',group:'temporario',min:60000,max:null,limtext:'Base: mín. R$ 60.000'},
+  TM10G:{desc:'Temporário 10 anos',tag:'Temp. 10a',tipo:'básica',kind:'death',group:'temporario',min:60000,max:null,limtext:'Base: mín. R$ 60.000'},
+  TM15G:{desc:'Temporário 15 anos',tag:'Temp. 15a',tipo:'básica',kind:'death',group:'temporario',min:60000,max:null,limtext:'Base: mín. R$ 60.000'},
+  TM20G:{desc:'Temporário 20 anos',tag:'Temp. 20a',tipo:'básica',kind:'death',group:'temporario',min:60000,max:null,limtext:'Base: mín. R$ 60.000'},
+  TM25G:{desc:'Temporário 25 anos',tag:'Temp. 25a',tipo:'básica',kind:'death',group:'temporario',min:60000,max:null,limtext:'Base: mín. R$ 60.000'},
+  TM30G:{desc:'Temporário 30 anos',tag:'Temp. 30a',tipo:'básica',kind:'death',group:'temporario',min:60000,max:null,limtext:'Base: mín. R$ 60.000'},
+  TM65G:{desc:'Temporário até 65 anos',tag:'Temp. até 65a',tipo:'básica',kind:'death',group:'temporario',min:60000,max:null,limtext:'Base: mín. R$ 60.000'},
+  TM75G:{desc:'Temporário até 75 anos',tag:'Temp. até 75a',tipo:'básica',kind:'death',group:'temporario',min:60000,max:null,limtext:'Base: mín. R$ 60.000'},
+  
+  // Opcionais - Temporário Adicional
   TF20G:{desc:'Temporário Pref. 20 anos',tag:'Pref. 20a',tipo:'opcional',kind:'death',group:'temporario',min:500000,max:null,limtext:'Adicional: mín. R$ 500.000'},
   TF10G:{desc:'Temporário Pref. 10 anos',tag:'Pref. 10a',tipo:'opcional',kind:'death',group:'temporario',min:500000,max:null,limtext:'Adicional: mín. R$ 500.000'},
   TF30G:{desc:'Temporário Pref. 30 anos',tag:'Pref. 30a',tipo:'opcional',kind:'death',group:'temporario',min:500000,max:null,limtext:'Adicional: mín. R$ 500.000'},
-  DR10G:{desc:'Temporário Decrescente 10 anos',tag:'Decresc. 10a',tipo:'opcional',kind:'death',group:'temporario',min:null,max:null,limtext:'Soma no MQC - sem mínimo definido'},
-  DR20G:{desc:'Temporário Decrescente 20 anos',tag:'Decresc. 20a',tipo:'opcional',kind:'death',group:'temporario',min:null,max:null,limtext:'Soma no MQC - sem mínimo definido'},
-  DR30G:{desc:'Temporário Decrescente 30 anos',tag:'Decresc. 30a',tipo:'opcional',kind:'death',group:'temporario',min:null,max:null,limtext:'Soma no MQC - sem mínimo definido'},
-  AR10G:{desc:'Morte Acidental Renovável 10 anos',tipo:'opcional',kind:'acc',min:55000,max:null,limtext:'R$ 55.000 - 5x MQC'},
-  AP75G:{desc:'Morte Acidental até 75 anos',tipo:'opcional',kind:'acc',min:55000,max:null,limtext:'R$ 55.000 - 5x MQC'},
-  AP10G:{desc:'Morte Acidental até 75a (10 anos)',tipo:'opcional',kind:'acc',min:55000,max:null,limtext:'R$ 55.000 - 5x MQC'},
+  DR10G:{desc:'Temporário Decrescente 10 anos',tag:'Decresc. 10a',tipo:'opcional',kind:'death',group:'temporario',min:null,max:null,limtext:'Soma no MQC - sem mínimo'},
+  DR20G:{desc:'Temporário Decrescente 20 anos',tag:'Decresc. 20a',tipo:'opcional',kind:'death',group:'temporario',min:null,max:null,limtext:'Soma no MQC - sem mínimo'},
+  DR30G:{desc:'Temporário Decrescente 30 anos',tag:'Decresc. 30a',tipo:'opcional',kind:'death',group:'temporario',min:null,max:null,limtext:'Soma no MQC - sem mínimo'},
+  TR05G:{desc:'Temporário 05 anos',tag:'Temp 05a',tipo:'opcional',kind:'death',group:'temporario',min:55000,max:null,limtext:'Adicional: mín. R$ 55.000'},
+  TR10G:{desc:'Temporário 10 anos',tag:'Temp 10a',tipo:'opcional',kind:'death',group:'temporario',min:55000,max:null,limtext:'Adicional: mín. R$ 55.000'},
+  TR15G:{desc:'Temporário 15 anos',tag:'Temp 15a',tipo:'opcional',kind:'death',group:'temporario',min:55000,max:null,limtext:'Adicional: mín. R$ 55.000'},
+  TR20G:{desc:'Temporário 20 anos',tag:'Temp 20a',tipo:'opcional',kind:'death',group:'temporario',min:55000,max:null,limtext:'Adicional: mín. R$ 55.000'},
+  TR25G:{desc:'Temporário 25 anos',tag:'Temp 25a',tipo:'opcional',kind:'death',group:'temporario',min:55000,max:null,limtext:'Adicional: mín. R$ 55.000'},
+  TR30G:{desc:'Temporário 30 anos',tag:'Temp 30a',tipo:'opcional',kind:'death',group:'temporario',min:55000,max:null,limtext:'Adicional: mín. R$ 55.000'},
+  TR65G:{desc:'Temporário até 65 anos',tag:'Temp até 65a',tipo:'opcional',kind:'death',group:'temporario',min:55000,max:null,limtext:'Adicional: mín. R$ 55.000'},
+  TR75G:{desc:'Temporário até 75 anos',tag:'Temp até 75a',tipo:'opcional',kind:'death',group:'temporario',min:55000,max:null,limtext:'Adicional: mín. R$ 55.000'},
+  
+  // Acidentes
+  AR10G:{desc:'Morte Acidental Renovável 10 anos',tag:'Renov. 10a',tipo:'opcional',kind:'acc',min:55000,max:null,limtext:'R$ 55.000 - 5x MQC'},
+  AP75G:{desc:'Morte Acidental até 75 anos',tag:'Até 75a',tipo:'opcional',kind:'acc',min:55000,max:null,limtext:'R$ 55.000 - 5x MQC'},
+  AP10G:{desc:'Morte Acidental até 75a (10 anos)',tag:'Até 75a (10a)',tipo:'opcional',kind:'acc',min:55000,max:null,limtext:'R$ 55.000 - 5x MQC'},
   PI05G:{desc:'Invalidez Total/Parcial Acidente',tipo:'opcional',kind:'pi',min:null,max:null,limtext:'R$ 55.000 - 5x MQC'},
-  DIMRG:{desc:'Doenças Graves Modular 2.0',subtype:'Modular',tipo:'opcional',kind:'ddp',group:'ddp',min:null,max:null,limtext:'R$ 55.000 - 5x MQC'},
-  DDP5G:{desc:'Doenças Graves Plus 5 anos',subtype:'Plus',tipo:'opcional',kind:'ddp',group:'ddp',min:null,max:null,limtext:'R$ 55.000 - 5x MQC'},
-  PA10G:{desc:'Perda Autonomia Pessoal 10 anos',tipo:'opcional',kind:'pa',min:null,max:null,limtext:'R$ 55.000 - 2x MQC'},
-  PA05G:{desc:'Perda Autonomia Pessoal 5 anos',tipo:'opcional',kind:'pa',min:null,max:null,limtext:'R$ 55.000 - 2x MQC'},
+  
+  // Doenças Graves
+  DDPSH:{desc:'Doenças Graves Plus 5H',subtype:'Plus 5H',tipo:'básica',kind:'ddp',group:'ddp',min:null,max:null,limtext:'Min. R$ 55.000 Max. R$ 2.500.000'},
+  DIMRG:{desc:'Doenças Graves Modular 2.0',tag:'Modular',subtype:'Modular',tipo:'opcional',kind:'ddp',group:'ddp',min:null,max:null,limtext:'R$ 55.000 - 5x MQC'},
+  DDP5G:{desc:'Doenças Graves Plus 5 anos',tag:'Plus',subtype:'Plus',tipo:'opcional',kind:'ddp',group:'ddp',min:null,max:null,limtext:'R$ 55.000 - 5x MQC'},
+  
+  // Perda Autonomia Pessoal
+  PA10G:{desc:'Perda Autonomia Pessoal 10 anos',tag:'10 anos',tipo:'opcional',kind:'pa',min:null,max:null,limtext:'R$ 55.000 - 2x MQC'},
+  PA05G:{desc:'Perda Autonomia Pessoal 5 anos',tag:'5 anos',tipo:'opcional',kind:'pa',min:null,max:null,limtext:'R$ 55.000 - 2x MQC'},
+  
+  // Saúde / Diversos
   BRB5G:{desc:'Quebra de Ossos 5 anos',tipo:'opcional',kind:'var',min:55000,max:300000,limtext:'R$ 55.000 - R$ 300.000'},
   CIA5G:{desc:'Cirurgia Ampliada 5 anos',tipo:'opcional',kind:'cia',min:55000,max:300000,limtext:'R$ 55.000 - R$ 300.000'},
   HC05G:{desc:'Renda Hospitalar 5 anos (diária)',tipo:'opcional',kind:'diaria',min:200,max:3000,limtext:'Diária R$ 200 - R$ 3.000'},
   CIB5G:{desc:'Cirurgia 5 anos',tipo:'opcional',kind:'unico',min:null,max:null,limtext:'Capital Único R$ 10.000'},
-  AFF5G:{desc:'Assist. Funeral Familiar ii 5 anos',tipo:'opcional',kind:'unico',min:null,max:null,limtext:'Capital Único (familiar ii)'},
-  AFC5G:{desc:'Assist. Funeral Familiar i 5 anos',tipo:'opcional',kind:'unico',min:null,max:null,limtext:'Capital Único (familiar i)'},
-  AF05G:{desc:'Assist. Funeral Individual 5 anos',tipo:'opcional',kind:'unico',min:null,max:null,limtext:'Capital Único (individual)'},
-  AFP5G:{desc:'Assist. Funeral Familiar iii 5 anos',tipo:'opcional',kind:'unico',min:null,max:null,limtext:'Capital Único (familiar iii)'},
-  WR10g:{desc:'Legado Protegido 10 anos',tag:'Legado Protegido',tipo:'básica',kind:'death',group:'vitalicio',min:400000,max:null,limtext:'Mín. R$ 400.000 (s/ valor de resgate)'}
+  
+  // Assistência Funeral
+  AFF5G:{desc:'Assist. Funeral Familiar II 5 anos',tag:'Familiar II',tipo:'opcional',kind:'unico',min:null,max:null,limtext:'Capital Único (Familiar II)'},
+  AFC5G:{desc:'Assist. Funeral Familiar I 5 anos',tag:'Familiar I',tipo:'opcional',kind:'unico',min:null,max:null,limtext:'Capital Único (Familiar I)'},
+  AF05G:{desc:'Assist. Funeral Individual 5 anos',tag:'Individual',tipo:'opcional',kind:'unico',min:null,max:null,limtext:'Capital Único (Individual)'},
+  AFP5G:{desc:'Assist. Funeral Familiar III 5 anos',tag:'Familiar III',tipo:'opcional',kind:'unico',min:null,max:null,limtext:'Capital Único (Familiar III)'},
 };
 
 const IOF = 1.0038;
@@ -79,7 +102,6 @@ function normalizeProject(data){
     if(b.idade!==a.idade) return b.idade-a.idade;
     return parseDate(a.nasc)-parseDate(b.nasc);
   });
-
   members.forEach(m=>{
     if(m.idade>=14){
       Object.keys(ADULT_DEFAULTS).forEach(code=>{
@@ -87,7 +109,6 @@ function normalizeProject(data){
       });
     }
   });
-
   let coverages;
   if(Array.isArray(data.coverages) && data.coverages.length){
     coverages = data.coverages.map(c => (typeof c==='string')
@@ -107,21 +128,53 @@ function normalizeProject(data){
 function groupRows(proj){
   const rows = [];
   const done = new Set();
+  
   proj.coverages.forEach(c=>{
     if(done.has(c.code)) return;
-    if(c.group){
-      const groupCodes = proj.coverages.filter(cc=>cc.group===c.group);
-      groupCodes.forEach(cc=>done.add(cc.code));
-      const label = c.group==='vitalicio' ? 'Cobertura Vitalícia (MQC)'
-        : c.group==='temporario' ? 'Cobertura Temporária (MQC)'
-        : 'Doenças Graves';
-      const section = c.group==='ddp' ? 'opcional' : 'básica';
-      rows.push({rowGroup:c.group, label, section, codes:groupCodes});
+    
+    let rowGroupId = null;
+    let label = c.desc;
+    let section = c.tipo; // 'básica' | 'opcional'
+
+    // Agrupamentos Famílias Visuais
+    if (c.tipo === 'básica' && (c.group === 'vitalicio' || c.group === 'temporario')) {
+      rowGroupId = 'base_mqc';
+      label = 'Cobertura Básica (MQC)';
+    } else if (c.tipo === 'opcional' && c.kind === 'death') {
+      rowGroupId = 'death_opc';
+      label = 'Temporário (Adicional)';
+    } else if (c.tipo === 'opcional' && c.kind === 'ddp') {
+      rowGroupId = 'ddp_opc';
+      label = 'Doenças Graves';
+    } else if (c.tipo === 'opcional' && c.kind === 'pa') {
+      rowGroupId = 'pa';
+      label = 'Perda Autonomia Pessoal';
+    } else if (c.tipo === 'opcional' && c.kind === 'acc') {
+      rowGroupId = 'acc';
+      label = 'Morte Acidental';
+    } else if (c.tipo === 'opcional' && c.code.startsWith('AF') && c.kind === 'unico') {
+      rowGroupId = 'assist_funeral';
+      label = 'Assistência Funeral';
+    }
+
+    if (rowGroupId) {
+      const groupCodes = proj.coverages.filter(cc => {
+        if (rowGroupId === 'base_mqc') return cc.tipo === 'básica' && (cc.group === 'vitalicio' || cc.group === 'temporario');
+        if (rowGroupId === 'death_opc') return cc.tipo === 'opcional' && cc.kind === 'death';
+        if (rowGroupId === 'ddp_opc') return cc.tipo === 'opcional' && cc.kind === 'ddp';
+        if (rowGroupId === 'pa') return cc.tipo === 'opcional' && cc.kind === 'pa';
+        if (rowGroupId === 'acc') return cc.tipo === 'opcional' && cc.kind === 'acc';
+        if (rowGroupId === 'assist_funeral') return cc.tipo === 'opcional' && cc.code.startsWith('AF') && cc.kind === 'unico';
+        return false;
+      });
+      groupCodes.forEach(cc => done.add(cc.code));
+      rows.push({rowGroup: rowGroupId, label, section, codes: groupCodes});
     } else {
       done.add(c.code);
-      rows.push({rowGroup:null, label:c.desc, section:c.tipo, codes:[c], limtext:c.limtext});
+      rows.push({rowGroup: null, label: c.desc, section: c.tipo, codes: [c], limtext: c.limtext});
     }
   });
+  
   const basicas = rows.filter(r=>r.section==='básica');
   const opcionais = rows.filter(r=>r.section==='opcional');
   return {basicas, opcionais};
@@ -130,10 +183,37 @@ function groupRows(proj){
 function initState(proj){
   return proj.members.map(m=>{
     const s={};
+    
+    // 1. Carrega o estado inicial das coberturas
     proj.coverages.forEach(c=>{
       const d=m.data[c.code];
       s[c.code] = d ? {cap:d.cap, active:d.contracted!==false, present:true} : {cap:0, active:false, present:false};
     });
+
+    // 2. Garante que haverá somente UMA cobertura Base MQC por pessoa
+    const baseCodes = proj.coverages
+      .filter(c => c.tipo === 'básica' && (c.group === 'vitalicio' || c.group === 'temporario'))
+      .map(c => c.code)
+      .filter(code => s[code].present);
+
+    if (baseCodes.length > 1) {
+      // Prioridade máxima para Vitalícia (Se existir vitalícia, ela é assumida como base)
+      const vitalicioCode = baseCodes.find(code => {
+         const c = proj.coverages.find(x => x.code === code);
+         return c && c.group === 'vitalicio';
+      });
+      
+      const codeToKeep = vitalicioCode || baseCodes[0];
+      
+      // Oculta e desativa as demais
+      baseCodes.forEach(code => {
+        if (code !== codeToKeep) {
+          s[code].present = false;
+          s[code].active = false;
+        }
+      });
+    }
+
     return s;
   });
 }
@@ -308,7 +388,6 @@ export default function AFTPlanner(){
 
   function askDelete(id){ setDeleteTarget(id); }
   function closeModal(){ setDeleteTarget(null); }
-
   function confirmDelete(){
     const list = projects.filter(p=>p.id!==deleteTarget);
     persist(list);
@@ -382,7 +461,7 @@ export default function AFTPlanner(){
         <div className="aft-overlay open">
           <div className="aft-modal">
             <h3>Excluir projeto?</h3>
-            <p>Excluir "{projects.find(p=>p.id===deleteTarget)?.name}"? Esta ação pode ser desfeita.</p>
+            <p>Excluir "{projects.find(p=>p.id===deleteTarget)?.name}"? Esta ação não pode ser desfeita.</p>
             <div className="aft-mbtns">
               <button className="aft-mbtn sec" onClick={closeModal}>Cancelar</button>
               <button className="aft-mbtn danger" onClick={confirmDelete}>Excluir</button>
@@ -408,7 +487,7 @@ function Sidebar({projects, currentId, onOpen, onNew, onHelp, onDelete}){
           <div key={p.id} className={"aft-proj-item"+(p.id===currentId?' active':'')} onClick={()=>onOpen(p.id)}>
             <div className="aft-pnm">{p.name}</div>
             <div className="aft-pmeta">{p.members.length} familiar{p.members.length!==1?'es':''} • {new Date(p.created).toLocaleDateString('pt-BR')}</div>
-            <button className="aft-pdel" onClick={(e)=>{e.stopPropagation();onDelete(p.id);}}>×</button>
+            <button className="aft-pdel" onClick={(e)=>{e.stopPropagation();onDelete(p.id);}}>✕</button>
           </div>
         ))}
       </div>
@@ -453,15 +532,14 @@ function HelpScreen({onDone}){
 async function generateJSONfromText(rawText, apiKey) {
   const listModelsUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
   const modelsResponse = await fetch(listModelsUrl);
-  
   if (!modelsResponse.ok) {
     throw new Error('Falha ao autenticar sua API Key. Verifique se ela foi gerada corretamente.');
   }
-  
+
   const modelsData = await modelsResponse.json();
   const validModels = modelsData.models
     .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
-    .map(m => m.name); 
+    .map(m => m.name);
 
   if (validModels.length === 0) {
     throw new Error('Sua chave não possui acesso a modelos ativos no momento.');
@@ -472,16 +550,11 @@ async function generateJSONfromText(rawText, apiKey) {
     ...validModels.filter(m => m.includes("pro")),
     ...validModels
   ];
-  
   const uniqueModels = [...new Set(modelsToTry)];
 
-  // Prompt ajustado para entender que o texto contém informações de VÁRIAS PESSOAS
-  const prompt = `Você é um analista de dados especialista em extração de apólices de seguro.
-Analise o texto bruto abaixo, que pode conter o conteúdo de VÁRIOS PDFs de diferentes membros da mesma família.
-Retorne ESTRITAMENTE um objeto JSON unificado. Não escreva texto antes nem depois do JSON.
+  const prompt = `Você é um analista de dados especialista em extração de apólices de seguro. Analise o texto bruto abaixo, que pode conter o conteúdo de VÁRIOS PDFs de diferentes membros da mesma família. Retorne ESTRITAMENTE um objeto JSON unificado. Não escreva texto antes nem depois do JSON.
 
 REGRAS DE EXTRAÇÃO E CÁLCULO (Siga rigorosamente):
-
 1. DADOS DOS CLIENTES (Localizados no final/rodapé de cada bloco de texto):
    - O texto contém a proposta de UMA OU MAIS pessoas. Extraia cada pessoa como um novo objeto dentro do array "members".
    - Procure TODAS as linhas que começam com "Simulação para:" ao longo do texto.
@@ -496,8 +569,8 @@ REGRAS DE EXTRAÇÃO E CÁLCULO (Siga rigorosamente):
    - "cap": Extraia o "Cap. Segurado", remova os pontos de milhar e troque vírgula por ponto (ex: 300.000,00 vira 300000).
    - "prem0": Extraia o "Prêmio (Em Meses)" (ex: 50,08 vira 50.08).
    - "mqc": true se o código for uma destas coberturas base (WV10G,WV20G,WV30G, DR20G, WL10G, WL20G, WL30G, WH20G, WH10G,WH30G, TP10G, TP20G, DDPSH, TP30G, DT10G, DT20G, DT30G, TM10G, TM05G, TM15G, TM20G, TM25G, TM30G, TM65G, TM75G, TF10G, TF20G, TF30G, DR10G, DR20G, DR30G, WR10G). Caso contrário, false.
-   - "rate": VOCÊ DEVE CALCULAR A TAXA usando a fórmula: (prem0 / cap) * 1000. 
-     -> Exceção: Para a cobertura CIB5G, o rate deve ser null.
+   - "rate": VOCÊ DEVE CALCULAR A TAXA usando a fórmula: (prem0 / cap) * 1000.
+      -> Exceção: Para a cobertura CIB5G, o rate deve ser null.
 
 MODELO DE SAÍDA EXIGIDO:
 {
@@ -511,15 +584,6 @@ MODELO DE SAÍDA EXIGIDO:
       "data": {
         "WV20G": { "cap": 130000, "rate": 2.840462, "prem0": 369.26, "mqc": true }
       }
-    },
-    {
-      "name": "Clarissa",
-      "sexo": "F",
-      "nasc": "07/02/1986",
-      "idade": 39,
-      "data": {
-        "PA10G": { "cap": 140000, "rate": 0.144214, "prem0": 20.19, "mqc": false }
-      }
     }
   ]
 }
@@ -528,10 +592,9 @@ TEXTOS BRUTOS COMBINADOS PARA EXTRAÇÃO:
 ${rawText}`;
 
   let lastError;
-
   for (const modelName of uniqueModels) {
     try {
-      console.log(`📡 Tentando extração com o modelo: ${modelName}...`);
+      console.log(`  Tentando extração com o modelo: ${modelName}...`);
       
       const generateUrl = `https://generativelanguage.googleapis.com/v1beta/${modelName}:generateContent?key=${apiKey}`;
       
@@ -549,8 +612,8 @@ ${rawText}`;
 
       const data = await response.json();
       
-      if (!data.candidates || data.candidates.length === 0) {
-         throw new Error('A IA não devolveu candidatos.');
+      if (!data.candidates || data.candidates.length === 0) { 
+        throw new Error('A IA não devolveu candidatos.');
       }
 
       let rawAiResponse = data.candidates[0].content.parts[0].text;
@@ -563,7 +626,7 @@ ${rawText}`;
       return rawAiResponse.replace(/```json/gi, '').replace(/```/g, '').trim();
       
     } catch (error) {
-      console.warn(`⚠️ O modelo ${modelName} falhou (${error.message}). Tentando o próximo...`);
+      console.warn(`  O modelo ${modelName} falhou (${error.message}). Tentando o próximo...`);
       lastError = error;
       continue; 
     }
@@ -576,13 +639,12 @@ function WizardScreen({value, setValue, err, onPaste, onCancel, onCreate}) {
   const fileInputRef = useRef(null);
   const [isExtracting, setIsExtracting] = useState(false);
   const [localErr, setLocalErr] = useState('');
-  
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('gemini_api_key') || '');
+
   useEffect(() => {
     localStorage.setItem('gemini_api_key', apiKey);
   }, [apiKey]);
 
-  // Alterada para lidar com múltiplos arquivos
   async function handleFileUpload(event) {
     const files = Array.from(event.target.files);
     if (!files.length) return;
@@ -603,7 +665,6 @@ function WizardScreen({value, setValue, err, onPaste, onCancel, onCreate}) {
     setValue('Lendo conteúdo dos PDFs...');
 
     try {
-      // Loop para extrair e concatenar os PDFs
       let combinedText = '';
       for (let i = 0; i < files.length; i++) {
         const text = await extractTextFromPDF(files[i]);
@@ -643,7 +704,7 @@ function WizardScreen({value, setValue, err, onPaste, onCancel, onCreate}) {
         <div className="aft-wiz-field" style={{ marginBottom: '24px', marginTop: '16px' }}>
           <input 
             type="file" 
-            multiple /* Adicionado suporte a múltiplos arquivos */
+            multiple 
             accept="application/pdf"
             ref={fileInputRef}
             style={{ display: 'none' }}
@@ -684,6 +745,7 @@ function WizardScreen({value, setValue, err, onPaste, onCancel, onCreate}) {
 
 function PanelScreen({proj, state, showSub, showTotal, setShowSub, setShowTotal, onBack, updateCap, toggleActive}){
   const [editing, setEditing] = useState({});
+  
   const tmpl = `minmax(150px,200px) repeat(${proj.members.length},1fr)`;
   const ft = famTotal(proj, state);
   const fc = famCapital(proj, state);
@@ -699,6 +761,7 @@ function PanelScreen({proj, state, showSub, showTotal, setShowSub, setShowTotal,
     const mqc = memMQC(proj, state, mi);
     const editKey = mi+'-'+c.code;
     const displayVal = editKey in editing ? editing[editKey] : BRL0(st.cap);
+    
     return (
       <div className={"aft-cell"+(st.active?'':' off')+(bad?' bad':'')} key={c.code}>
         {tag && <div className="aft-cell-tag">{tag}</div>}
@@ -735,11 +798,12 @@ function PanelScreen({proj, state, showSub, showTotal, setShowSub, setShowTotal,
     return (
       <div className="aft-crow" style={{'--tmpl':tmpl}} key={row.rowGroup || row.codes[0].code}>
         <div className="aft-rlabel">
-          <div className="aft-rn"><span className={"aft-rdot "+row.section}></span><span className="aft-rnm">{row.label}</span></div>
+          <div className="aft-rn"><span className={"aft-rdot "+(row.section === 'básica' ? 'basica' : 'opcional')}></span><span className="aft-rnm">{row.label}</span></div>
           <div className="aft-rlim">{row.limtext||(row.rowGroup?'Uma cobertura por pessoa':'')}</div>
         </div>
         {proj.members.map((m,mi)=>{
-          const owned = row.codes.find(c=>state[mi][c.code] && state[mi][c.code].present);
+          // A função initState já garante apenas uma presente para categorias excludentes
+          const owned = row.codes.find(c => state[mi][c.code] && state[mi][c.code].present);
           if(!owned){
             return <div className="aft-cell na" key={mi}><span style={{color:'#9A927F',fontSize:12}}>-</span></div>;
           }
@@ -753,7 +817,7 @@ function PanelScreen({proj, state, showSub, showTotal, setShowSub, setShowTotal,
   return (
     <div className="aft-screen" style={{background:'#0E1D38'}}>
       <div className="aft-panel-topbar">
-        <button className="aft-ptb-back" onClick={onBack}>← Projetos</button>
+        <button className="aft-ptb-back" onClick={onBack}>⬅ Projetos</button>
         <div className="aft-ptb-fam">
           <div className="aft-ey">Solução de Proteção Personalizada</div>
           <div className="aft-nm">Família {proj.name}</div>
@@ -763,8 +827,10 @@ function PanelScreen({proj, state, showSub, showTotal, setShowSub, setShowTotal,
           <Toggle label="Total" on={showTotal} onClick={()=>setShowTotal(v=>!v)} />
         </div>
       </div>
+
       <div className="aft-panel-body">
         <div className="aft-board">
+          
           <div className="aft-head-band">
             <div className="aft-mgrid" style={{'--tmpl':tmpl}}>
               <div className="aft-head-corner"><div className="aft-t">Coberturas</div><div className="aft-s">Capital segurado</div></div>
@@ -778,15 +844,18 @@ function PanelScreen({proj, state, showSub, showTotal, setShowSub, setShowTotal,
               ))}
             </div>
           </div>
+
           <div className="aft-rows">
             <div className="aft-section-div" style={{'--tmpl':tmpl}}>
               <div className="aft-section-lbl">Coberturas Básicas</div>
             </div>
             {basicas.map(renderRow)}
+            
             <div className="aft-section-div" style={{'--tmpl':tmpl}}>
               <div className="aft-section-lbl">Coberturas Opcionais</div>
             </div>
             {opcionais.map(renderRow)}
+            
             <div className="aft-crow aft-sub" style={{'--tmpl':tmpl}}>
               <div className="aft-rlabel" style={{fontFamily:"'Fraunces',serif",fontWeight:600,fontSize:12,color:'#0E1D38'}}>Subtotal mensal</div>
               {proj.members.map((m,mi)=>{
@@ -804,10 +873,12 @@ function PanelScreen({proj, state, showSub, showTotal, setShowSub, setShowTotal,
               })}
             </div>
           </div>
+
         </div>
+
         <div className={"aft-ftotal"+(showTotal?'':' hid')}>
           <div className="aft-fl">
-            <div className="aft-fk">Total da família – mensal com IOF</div>
+            <div className="aft-fk">Total da família — mensal com IOF</div>
             <div className="aft-fd">Valores proporcionais às propostas Prudential.</div>
           </div>
           <div>
@@ -815,13 +886,16 @@ function PanelScreen({proj, state, showSub, showTotal, setShowSub, setShowTotal,
             <div className="aft-fyr">R$ {BRL(ft*12)} ao ano</div>
           </div>
         </div>
+
         <div className="aft-fcapital">Capital segurado total da família: <b>R$ {BRL0(fc)}</b></div>
+        
         <div className="aft-legend">
           <div className="aft-it"><span className="aft-ld" style={{background:'#2F7A45'}}></span>Básica</div>
           <div className="aft-it"><span className="aft-ld" style={{background:'#E4B860',border:'1px solid #C6892B'}}></span>Opcional</div>
           <div className="aft-it"><span style={{color:'#F4A261',fontWeight:700}}>Vermelho</span> = fora dos limites</div>
-          <div className="aft-it">💡 Toque no capital para editar</div>
+          <div className="aft-it">☝ Toque no capital para editar</div>
         </div>
+
       </div>
     </div>
   );
@@ -912,11 +986,11 @@ const CSS = `
 .aft-ey{font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber-s);font-weight:700}
 .aft-nm{font-family:'Fraunces',serif;font-weight:600;font-size:16px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aft-toggles{display:flex;gap:6px;flex-wrap:nowrap;justify-content:flex-end;flex:none}
-.aft-tgbtn{display:inline-flex;align-items:center;gap:7px;cursor:pointer;user-select:none;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);padding:6px 11px;border-radius:999px;transition:.2s;white-space:nowrap}
+.aft-tgbtn{display:inline-flex;align-items:center;gap:7px;cursor:pointer;user-select:none;background:rgba(255,255,255,.07);border:none;padding:7px 12px;border-radius:999px;transition:.2s;white-space:nowrap}
 .aft-tgbtn:active{transform:scale(.97)}
 .aft-tgbtn .aft-lab{font-size:11px;font-weight:600}
 .aft-swi{width:30px;height:18px;border-radius:999px;background:rgba(255,255,255,.22);position:relative;transition:.22s;flex:none}
-.aft-swi::after{content:"absolute";top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.22s}
+.aft-swi::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.22s}
 .aft-tgbtn.on .aft-swi{background:var(--amber)}
 .aft-tgbtn.on .aft-swi::after{left:14px}
 .aft-panel-body{flex:1;min-height:0;padding:8px 10px 8px;display:flex;flex-direction:column;gap:6px;overflow:hidden}
@@ -939,7 +1013,7 @@ const CSS = `
 .aft-crow:nth-child(even) .aft-rlabel,.aft-crow:nth-child(even) .aft-cell{background:#FAFAF6}
 .aft-rn{display:flex;align-items:center;gap:6px;min-width:0}
 .aft-rdot{width:6px;height:6px;border-radius:50%;flex:none}
-.aft-rdot.básica{background:var(--green)}
+.aft-rdot.basica{background:var(--green)}
 .aft-rdot.opcional{background:var(--amber-s);border:1px solid var(--amber)}
 .aft-rnm{font-size:10.5px;font-weight:600;color:var(--ink);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aft-rlim{font-size:8.5px;color:var(--muted2);margin-top:0;margin-left:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1000,7 +1074,7 @@ const CSS = `
   .aft-aside{width:200px}
   .aft-panel-topbar{padding:6px 12px;gap:8px}
   .aft-nm{font-size:14.5px}
-  .aft-tgbtn{padding:5px 9px}
+  .aft-tgbtn{padding:6px 10px}
   .aft-tgbtn .aft-lab{font-size:10px}
   .aft-swi{width:26px;height:15px}
   .aft-swi::after{width:11px;height:11px}
